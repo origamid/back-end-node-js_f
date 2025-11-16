@@ -1,0 +1,44 @@
+{
+	email {$ACME_EMAIL}
+}
+{$SERVER_NAME} {
+	encode zstd gzip
+
+	@api path /api/*
+	@notAPI not path /api/*
+
+	header {
+		-Via
+		-Server
+	}
+	header @api {
+		X-api "api"
+	}
+	header @notAPI {
+		X-naoapi "naoapi"
+	}
+
+	handle_path /api/* {
+		reverse_proxy node:3000
+	}
+	handle_path /files/public/* {
+		root * /files/public
+		file_server
+	}
+
+	handle_path /files/private/* {
+		reverse_proxy node:3000 {
+			@accel header X-Accel-Redirect *
+			handle_response @accel {
+				root * /files/private
+				file_server
+			}
+		}
+	}
+
+	route {
+		root * /front
+		try_files {path} {path}/ /index.html
+		file_server
+	}
+}

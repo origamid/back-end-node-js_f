@@ -1,0 +1,7 @@
+# Ignore
+node_modules/
+/db
+/files
+/secrets
+.env
+.DS_Store

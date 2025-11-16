@@ -1,0 +1,29 @@
+services:
+  node:
+    build:
+      context: .
+      target: prod
+    env_file:
+      - .env
+    ports:
+      - '3040:3000'
+    logging:
+      driver: local
+      options:
+        max-size: '20m'
+        max-file: '5'
+    restart: unless-stopped
+    stop_grace_period: 10s
+
+  caddy:
+    image: caddy:alpine
+    ports:
+      - '80:80'
+    volumes:
+      - ./front:/usr/share/caddy
+    logging:
+      driver: local
+      options:
+        max-size: '20m'
+        max-file: '5'
+    restart: unless-stopped

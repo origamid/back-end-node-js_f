@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "nodenext",
+    "rootDir": ".",
+    "outDir": "./dist",
+    "sourceMap": true,
+    "esModuleInterop": true,
+    "strict": true,
+    "allowImportingTsExtensions": true,
+    "rewriteRelativeImportExtensions": true,
+    "noEmit": true
+  },
+  "include": [
+    "api/**/*.ts",
+    "core/**/*.ts",
+    "tests",
+    "*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}

@@ -1,0 +1,70 @@
+{
+	email {$ACME_EMAIL}
+}
+http://front.localhost {
+	root * /front/local
+	try_files {path} {path}/ /index.html
+	file_server
+}
+http://segundo.localhost {
+	root * /front/local
+	try_files {path} {path}/ /index.html
+	file_server
+}
+{$SERVER_NAME} {
+	encode zstd gzip
+
+	@api path /api/*
+	@notAPI not path /api/*
+
+	header {
+		-Via
+		-Server
+	}
+
+	header @notAPI {
+		X-naoapi "naoapi"
+	}
+
+	header @api {
+		# Access-Control-Allow-Origin {header.Origin}
+		Access-Control-Allow-Origin http://front.localhost
+		Access-Control-Allow-Methods "GET,POST,PUT,DELETE,OPTIONS"
+		Access-Control-Allow-Headers "Content-Type, Authorization"
+		Access-Control-Allow-Credentials true
+		Access-Control-Max-Age 600
+		Vary "Origin"
+	}
+
+	@preflight {
+		method OPTIONS
+		path /api/*
+	}
+	handle @preflight {
+		respond 204
+	}
+
+	handle_path /api/* {
+		reverse_proxy node:3000
+	}
+	handle_path /files/public/* {
+		root * /files/public
+		file_server
+	}
+
+	handle_path /files/private/* {
+		reverse_proxy node:3000 {
+			@accel header X-Accel-Redirect *
+			handle_response @accel {
+				root * /files/private
+				file_server
+			}
+		}
+	}
+
+	route {
+		root * /front
+		try_files {path} {path}/ /index.html
+		file_server
+	}
+}
