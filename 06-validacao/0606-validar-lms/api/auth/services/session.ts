@@ -65,7 +65,7 @@ export class SessionService extends CoreProvider {
 
     return {
       valid: true,
-      cookie: sidCookie(sid, expires_ms),
+      cookie: sidCookie(sid, Math.floor((expires_ms - now) / 1000)),
       session: {
         user_id: session.user_id,
         role: user.role,
